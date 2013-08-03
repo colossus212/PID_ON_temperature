@@ -1,0 +1,7 @@
+"main.obj",
+"18b20.obj",
+"uartTimer1.obj",
+"pid.obj",
+"seg8.obj" 
+TO "main" 
+RAMSIZE(256) 

@@ -1,0 +1,149 @@
+C51 COMPILER V6.12  MAIN                                                                   08/04/2013 00:20:27 PAGE 1   
+
+
+C51 COMPILER V6.12, COMPILATION OF MODULE MAIN
+OBJECT MODULE PLACED IN .\main.OBJ
+COMPILER INVOKED BY: C:\Keil\C51\BIN\C51.EXE .\main.c DEBUG OBJECTEXTEND
+
+stmt level    source
+
+   1          #include"STC_NEW_8051.h"
+   2          #include"defines.h"
+   3          #include"18b20.h"
+   4          #include"uartTimer1.h"
+   5          #include"pid.h"
+   6          #include"seg8.h"
+   7          #include<stdio.h>
+   8          
+   9          sbit NOHOT=P2^1;
+  10          sbit KEY0=P3^7;
+  11          sbit KEY1=P3^6;
+  12          
+  13          uint16 t5ms=0;
+  14          uint8 t1s=0;
+  15          
+  16          void Timer0Init(void)		//5毫秒@11.0592MHz
+  17          {
+  18   1      	AUXR &= 0x7F;		//定时器时钟12T模式
+  19   1      	TMOD &= 0xF0;		//设置定时器模式
+  20   1      	TMOD |= 0x01;		//设置定时器模式
+  21   1      	TL0 = 0x00;		//设置定时初值
+  22   1      	TH0 = 0xEE;		//设置定时初值
+  23   1      	TF0 = 0;		//清除TF0标志
+  24   1      	TR0 = 1;		//定时器0开始计时
+  25   1      
+  26   1      	ET0=1;
+  27   1      	EA=1;
+  28   1      }
+  29          
+  30          void initAll()
+  31          {
+  32   1      	Init_DS18B20();
+  33   1      	Config18b20();
+  34   1      	UartInit();
+  35   1      	Timer0Init();
+  36   1      	InitSerialPortSEG8();
+  37   1      }
+  38          void main()
+  39          {
+  40   1      	xdata PIDValueStr PID;
+  41   1      	uint16 t5ms_old=t5ms;
+  42   1      	uint8 pressed=0;
+  43   1      	uint8 added=0;
+  44   1      	initAll();
+  45   1      	printf("INIT OK!\n");
+  46   1      	PID.KP_Uint8=2;
+  47   1      	PID.KI_Uint8=2;
+  48   1      	PID.KD_Uint8=0;
+  49   1      	PID.RK_Uint16=400;//设定值
+  50   1      	while(1)
+  51   1      	{
+  52   2      		if(t1s)
+  53   2      		{
+  54   3      			PID.CK_Uint16=get_temp();
+  55   3      			PIDOperation(&PID);
+C51 COMPILER V6.12  MAIN                                                                   08/04/2013 00:20:27 PAGE 2   
+
+  56   3      			printf("set temp:%d",PID.RK_Uint16);
+  57   3      			printf("set:%d",PID.Uk_Uint16);
+  58   3      			printf("temp:%d\n",PID.CK_Uint16);
+  59   3      			t1s=0;
+  60   3      		}
+  61   2      		//if(t5ms!=t5ms_old)
+  62   2      		if(t5ms%2)
+  63   2      		{
+  64   3      			//t5ms_old=t5ms;
+  65   3      			if(PID.Uk_Uint16>(uint16)t5ms/2)
+  66   3      			{
+  67   4      				NOHOT=0;
+  68   4      			}else
+  69   3      			{
+  70   4      				NOHOT=1;
+  71   4      			}
+  72   3      		}
+  73   2      		if(KEY0==0||KEY1==0)
+  74   2      		{
+  75   3      			if(pressed)
+  76   3      			{
+  77   4      				if(((t5ms>t5ms_old)&&(t5ms-t5ms_old>=2))||(t5ms<t5ms_old&&t5ms+200-t5ms_old>=2))
+  78   4      				{
+  79   5      					if(!added)
+  80   5      					{
+  81   6      						if(KEY0==0)
+  82   6      						{
+  83   7      							PID.RK_Uint16=PID.RK_Uint16+100;
+  84   7      						}
+  85   6      						if(KEY1==0)
+  86   6      						{
+  87   7      							PID.RK_Uint16=PID.RK_Uint16+10;
+  88   7      						}
+  89   6      					}
+  90   5      					added=1;
+  91   5      				}
+  92   4      			}else
+  93   3      			{
+  94   4      				
+  95   4      				pressed=1;
+  96   4      				t5ms_old=t5ms;
+  97   4      			}
+  98   3      		}
+  99   2      		if(KEY0==1&&KEY1==1)
+ 100   2      		{
+ 101   3      			added=0;
+ 102   3      		}
+ 103   2      		if(PID.RK_Uint16>900)
+ 104   2      		{
+ 105   3      			PID.RK_Uint16=400;
+ 106   3      		}
+ 107   2      		seg8Disp(PID.CK_Uint16,0,2);
+ 108   2      		seg8Disp(PID.RK_Uint16,1,2);
+ 109   2      	}
+ 110   1      }
+ 111          
+ 112          void timer0()interrupt 1
+ 113          {
+ 114   1      	t5ms++;
+ 115   1      	if(t5ms>=200)
+ 116   1      	{
+ 117   2      		t5ms=0;
+C51 COMPILER V6.12  MAIN                                                                   08/04/2013 00:20:27 PAGE 3   
+
+ 118   2      		t1s++;
+ 119   2      	}
+ 120   1      	TL0 = 0x00;		//设置定时初值
+ 121   1      	TH0 = 0xEE;		//设置定时初值
+ 122   1      }	 
+
+
+MODULE INFORMATION:   STATIC OVERLAYABLE
+   CODE SIZE        =    431    ----
+   CONSTANT SIZE    =     38    ----
+   XDATA SIZE       =   ----      24
+   PDATA SIZE       =   ----    ----
+   DATA SIZE        =      3       4
+   IDATA SIZE       =   ----    ----
+   BIT SIZE         =   ----    ----
+END OF MODULE INFORMATION.
+
+
+C51 COMPILATION COMPLETE.  0 WARNING(S),  0 ERROR(S)

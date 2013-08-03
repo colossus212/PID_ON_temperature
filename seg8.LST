@@ -1,0 +1,103 @@
+C51 COMPILER V6.12  SEG8                                                                   08/04/2013 00:20:28 PAGE 1   
+
+
+C51 COMPILER V6.12, COMPILATION OF MODULE SEG8
+OBJECT MODULE PLACED IN .\seg8.OBJ
+COMPILER INVOKED BY: C:\Keil\C51\BIN\C51.EXE .\seg8.c DEBUG OBJECTEXTEND
+
+stmt level    source
+
+   1          #include"STC_NEW_8051.h"
+   2          #include <intrins.h>
+   3          #include"defines.h"
+   4          #include"seg8.h"
+   5          #define SEG8NOP _nop_()
+   6          uchar code wei[]=
+   7          {0x01,0x02,0x04,0x08,
+   8           0x10,0x20,0x40,0x80
+   9          };
+  10          uchar code duan[]={
+  11             0xc0,0xf9,0xa4,0xb0,
+  12             0x99,0x92,0x82,0xf8,
+  13             0x80,0x90
+  14                   }; 
+  15          
+  16          void InitSerialPortSEG8(void)
+  17          {
+  18   1        SEG8SDA = 0;
+  19   1        SEG8SHIFT_CP = 0;
+  20   1        SEG8ST_CP = 0;
+  21   1      }
+  22          
+  23          void SerialSendDataSEG8(uint16 dat)
+  24          {
+  25   1        uchar ii;
+  26   1        uint16 SEG8SDAta=dat;
+  27   1        for(ii=0;ii<16;ii++)
+  28   1        {
+  29   2          if(SEG8SDAta&0x8000)SEG8SDA=1;
+  30   2      	else SEG8SDA = 0;
+  31   2          SEG8SDAta<<=1;
+  32   2          SEG8SHIFT_CP =0;
+  33   2          SEG8NOP;
+  34   2          SEG8NOP;
+  35   2          SEG8SHIFT_CP = 1;
+  36   2          SEG8NOP;
+  37   2          SEG8NOP;
+  38   2        }
+  39   1        SEG8ST_CP = 1;
+  40   1        SEG8NOP;
+  41   1        SEG8NOP;
+  42   1        SEG8ST_CP = 0;
+  43   1      }
+  44          
+  45          void seg8Disp(uint16 var,uchar rol,uchar pot)
+  46          {
+  47   1      	unsigned int dx;
+  48   1      	uint8 i=0,tag=0;
+  49   1      	uint8 shu[4];
+  50   1      	shu[0]=var/1000;
+  51   1      	shu[1]=(var%1000)/100;
+  52   1      	shu[2]=(var%100)/10;
+  53   1      	shu[3]=var%10;
+  54   1      	
+  55   1      	InitSerialPortSEG8();
+C51 COMPILER V6.12  SEG8                                                                   08/04/2013 00:20:28 PAGE 2   
+
+  56   1      	
+  57   1      	if(rol)
+  58   1      	{
+  59   2      		tag=4;
+  60   2      	}else
+  61   1      	{
+  62   2      		tag=0;
+  63   2      	}
+  64   1      	for(i=tag;i<=3+tag;i++)
+  65   1      	{
+  66   2      		dx=wei[i];
+  67   2      		 if(pot==i%4)
+  68   2      		 {
+  69   3      		 dx=((dx<<8)|duan[shu[i%4]]&0x7f);
+  70   3      		 }
+  71   2      		 else
+  72   2      		 {
+  73   3      		 dx=((dx<<8)|duan[shu[i%4]]);
+  74   3      		 }
+  75   2      		 SerialSendDataSEG8(dx);
+  76   2      	}
+  77   1      	SerialSendDataSEG8(0xff);
+  78   1      }
+
+
+MODULE INFORMATION:   STATIC OVERLAYABLE
+   CODE SIZE        =    243    ----
+   CONSTANT SIZE    =     18    ----
+   XDATA SIZE       =   ----    ----
+   PDATA SIZE       =   ----    ----
+   DATA SIZE        =   ----      11
+   IDATA SIZE       =   ----    ----
+   BIT SIZE         =   ----    ----
+END OF MODULE INFORMATION.
+
+
+C51 COMPILATION COMPLETE.  0 WARNING(S),  0 ERROR(S)
