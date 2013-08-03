@@ -1,4 +1,4 @@
-C51 COMPILER V6.12  18B20                                                                  08/04/2013 00:20:27 PAGE 1   
+C51 COMPILER V6.12  18B20                                                                  08/04/2013 00:57:15 PAGE 1   
 
 
 C51 COMPILER V6.12, COMPILATION OF MODULE 18B20
@@ -62,7 +62,7 @@ stmt level    source
   53   1      return(dat);
   54   1      }
   55          /******************************************************
-C51 COMPILER V6.12  18B20                                                                  08/04/2013 00:20:27 PAGE 2   
+C51 COMPILER V6.12  18B20                                                                  08/04/2013 00:57:15 PAGE 2   
 
   56          函数名称：void WriteOneChar(uchar dat)
   57          返回值：无
@@ -126,7 +126,7 @@ stmt level    source
  115   1           WriteOneChar(0xcc);  //skip rom
  116   1           WriteOneChar(0x48);  //保存设定值
  117   1           Init_DS18B20();
-C51 COMPILER V6.12  18B20                                                                  08/04/2013 00:20:27 PAGE 3   
+C51 COMPILER V6.12  18B20                                                                  08/04/2013 00:57:15 PAGE 3   
 
  118   1           WriteOneChar(0xcc);  //skip rom
  119   1           WriteOneChar(0xb8);  //回调设定值

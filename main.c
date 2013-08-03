@@ -4,6 +4,7 @@
 #include"uartTimer1.h"
 #include"pid.h"
 #include"seg8.h"
+#include"LCD_driver.h"
 #include<stdio.h>
 
 sbit NOHOT=P2^1;
@@ -34,6 +35,8 @@ void initAll()
 	UartInit();
 	Timer0Init();
 	InitSerialPortSEG8();
+	LCD_Init();
+	PantLCD(0x00,0x00);
 }
 void main()
 {
@@ -41,6 +44,7 @@ void main()
 	uint16 t5ms_old=t5ms;
 	uint8 pressed=0;
 	uint8 added=0;
+	uint8 x=0,y=0,x_o=0,y_o=0;
 	initAll();
 	printf("INIT OK!\n");
 	PID.KP_Uint8=2;
@@ -49,6 +53,9 @@ void main()
 	PID.RK_Uint16=400;//�趨ֵ
 	while(1)
 	{
+		LCD_CS =0;
+		LCDLineDDA(0,0,100,100);
+		LCD_CS =1;
 		if(t1s)
 		{
 			PID.CK_Uint16=get_temp();
@@ -57,6 +64,11 @@ void main()
 			printf("set:%d",PID.Uk_Uint16);
 			printf("temp:%d\n",PID.CK_Uint16);
 			t1s=0;
+			x_o=x;
+			y_o=y;
+			x=x_o+4;
+			y=PID.CK_Uint16/4;
+			LCDLineDDA(x_o,y_o,x,y);
 		}
 		//if(t5ms!=t5ms_old)
 		if(t5ms%2)

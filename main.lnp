@@ -2,6 +2,7 @@
 "18b20.obj",
 "uartTimer1.obj",
 "pid.obj",
-"seg8.obj" 
+"seg8.obj",
+"LCD_driver.obj" 
 TO "main" 
 RAMSIZE(256) 
