@@ -10,7 +10,7 @@ File 1,1,<.\18b20.c><18b20.c>
 File 1,1,<.\uartTimer1.c><uartTimer1.c>
 File 1,1,<.\pid.c><pid.c>
 File 1,1,<.\seg8.c><seg8.c>
-File 1,1,<.\LCD_driver.c><LCD_driver.c>
+File 1,1,<.\5110.c><5110.c>
 
 
 Options 1,0,0  // Target 'Target 1'

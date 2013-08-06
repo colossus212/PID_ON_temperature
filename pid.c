@@ -1,6 +1,6 @@
 #include"defines.h"
 #include"PID.h"
-const unsigned int MAXOUT=100;
+const unsigned int MAXOUT=200;
 //================================================================
 // PID->H
 // Operation about PID algorithm procedure 

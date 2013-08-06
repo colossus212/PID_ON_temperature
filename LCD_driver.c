@@ -158,8 +158,8 @@ void LCD_Write_DATA(char VH,char VL)	//发送数据
 
 
 
-void PantLCD(char VH,char VL)
-{
+	void PantLCD(char VH,char VL)
+	{
 	int i,j;
 	LCD_CS =0;  //打开片选使能
 	Address_setLCD(0,0,239,319);
@@ -173,6 +173,7 @@ void PantLCD(char VH,char VL)
 	  }
      LCD_CS =1;  //关闭片选使能
 }
+
 /********************************************************************************************
 	 DDA称为数值微分画线算法，是直线生成算法中最简单的一种。原理相当简单，就是最直观的根据斜率的
 	 偏移程度，决定是以x为步进方向还是以y为步进方向。然后在相应的步进方向上，步进变量每次增加一个
@@ -181,7 +182,8 @@ void PantLCD(char VH,char VL)
 
 void LCDLineDDA(int x0,int y0,int x1,int y1)
 {
-    float dy,dx,x,y,m;
+	float dy,dx,x,y,m;
+	LCD_CS=0;
     dx=x1-x0;
     dy=y1-y0;
     m=dy/dx;
@@ -241,6 +243,7 @@ void LCDLineDDA(int x0,int y0,int x1,int y1)
               }
         }
     }
+	LCD_CS=1;
 }
 
 void Address_setLCD(unsigned int x1,unsigned int y1,unsigned int x2,unsigned int y2)

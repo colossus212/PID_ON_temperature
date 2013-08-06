@@ -1,0 +1,169 @@
+C51 COMPILER V6.12  5110                                                                   08/05/2013 15:34:02 PAGE 1   
+
+
+C51 COMPILER V6.12, COMPILATION OF MODULE 5110
+OBJECT MODULE PLACED IN .\5110.OBJ
+COMPILER INVOKED BY: C:\Keil\C51\BIN\C51.EXE .\5110.c DEBUG OBJECTEXTEND
+
+stmt level    source
+
+   1          #include"5110.h"
+   2          #include"defines.h"
+   3          void delay_1ms5110(void)//1ms延时函数
+   4          {
+   5   1      	unsigned int i;
+   6   1      	for (i=0;i<500;i++)	  ;
+   7   1      ;
+   8   1      }
+   9          
+  10          /*--------------------------------------------
+  11          LCD_write_byte5110: 使用SPI接口写数据到LCD
+  12          输入参数：dt：写入的数据；
+  13          command ：写数据/命令选择；
+  14          编写日期：20080918 
+  15          ----------------------------------------------*/
+  16          void LCD_write_byte5110(unsigned char dt, unsigned char command)
+  17          {
+  18   1      	unsigned char i; 
+  19   1      	sce=0;	
+  20   1      	dc=command;	
+  21   1      	for(i=0;i<8;i++)
+  22   1      	{ 
+  23   2      		if(dt&0x80)
+  24   2      			sdin=1;
+  25   2      		else
+  26   2      			sdin=0;
+  27   2      		dt=dt<<1;		
+  28   2      		sclk=0; 		
+  29   2      		sclk=1; 
+  30   2      	}	
+  31   1      	dc=1;	
+  32   1      	sce=1;	
+  33   1      	sdin=1;
+  34   1      }
+  35          /*---------------------------------------
+  36          LCD_init5110: 3310LCD初始化
+  37          编写日期：20080918 
+  38          -----------------------------------------  */
+  39          void LCD_init5110(void)
+  40          {
+  41   1      	res=0;  	
+  42   1        	delay_1ms5110();
+  43   1        	res=1;  
+  44   1      	LCD_write_byte5110(0x21,0);//初始化Lcd,功能设定使用扩充指令
+  45   1      	LCD_write_byte5110(0xc0,0);//设定液晶偏置电压d0
+  46   1      	LCD_write_byte5110(0x20,0);//使用基本指令
+  47   1      	LCD_write_byte5110(0x0C,0);//设定显示模式，正常显示
+  48   1      }
+  49          /*-------------------------------------------
+  50          LCD_set_XY5110: 设置LCD坐标函数
+  51          输入参数：X：0－83  Y：0－5
+  52          编写日期：20080918 
+  53          ---------------------------------------------*/
+  54          void LCD_set_XY5110(unsigned char X, unsigned char Y)
+  55          {
+C51 COMPILER V6.12  5110                                                                   08/05/2013 15:34:02 PAGE 2   
+
+  56   1      	LCD_write_byte5110(0x40 | Y, 0);// column
+  57   1      	LCD_write_byte5110(0x80 | X, 0);// row
+  58   1      } 
+  59          /*------------------------------------------
+  60          LCD_clear5110: LCD清屏函数
+  61          编写日期：20080918 
+  62          --------------------------------------------*/
+  63          void LCD_clear5110(void)
+  64          {
+  65   1      	unsigned char t;
+  66   1      	unsigned char k;
+  67   1      	LCD_set_XY5110(0,0);
+  68   1      	for(t=0;t<6;t++)
+  69   1      	{ 
+  70   2      		for(k=0;k<84;k++)
+  71   2      		{ 
+  72   3      			LCD_write_byte5110(0x00,1);
+  73   3      				
+  74   3      		} 
+  75   2      	}
+  76   1      }/*-----------------------------------------------------------------------
+  77          LCD_draw_point(unsigned char x,unsigned char y)        : 任意位置画点函数
+  78          
+  79          输入参数：x       ：0－83
+  80                    y       ：0－47
+  81          
+  82          编写日期          ：2011-6-9 
+  83          最后修改日期      ：2011-6-9
+  84          by_menglongfc_fc.xxzj@gmail.com 
+  85          -----------------------------------------------------------------------*/
+  86          void LCD_draw_point5110(unsigned char x, unsigned char y)
+  87          {
+  88   1      	unsigned char X,Y,tmp;
+  89   1      
+  90   1      	X = x;
+  91   1      	Y = y/8;
+  92   1      	tmp = 0x01 << y%8;
+  93   1      	LCD_set_XY5110(X,Y);
+  94   1      	LCD_write_byte5110(tmp,1);
+  95   1      }
+  96          
+  97          /*-----------------------------------------------------------------------
+  98          void LCD_draw_line(unsigned char x0, unsigned char y0,unsigned char x1, unsigned char y1)
+  99          函数功能          ：实现任意两点间画直线
+ 100          
+ 101          输入参数：x0，x1  ：0－83
+ 102                    y1，y1  ：0－47
+ 103          
+ 104          编写日期          ：2011-6-9 
+ 105          最后修改日期      ：2011-6-9
+ 106          by_menglongfc_fc.xxzj@gmail.com 
+ 107          -----------------------------------------------------------------------*/
+ 108          //需修正首末点数值大小点问题
+ 109          void DDALine5110(uint8 x0,uint8 y0,uint8 x1,uint8 y1)
+ 110          {
+ 111   1          char dx,dy,n,k;
+ 112   1      	float xinc,yinc,x,y;
+ 113   1      	uint8 absdx,absdy;
+ 114   1          dx=x1-x0;dy=y1-y0;
+ 115   1      	if(dx>=0)
+ 116   1      	{
+ 117   2      		absdx=dx;
+C51 COMPILER V6.12  5110                                                                   08/05/2013 15:34:02 PAGE 3   
+
+ 118   2      	}else
+ 119   1      	{
+ 120   2      		absdx=-dx;
+ 121   2      	}
+ 122   1      	if(dy>=0)
+ 123   1      	{
+ 124   2      		absdy=dy;
+ 125   2      	}else
+ 126   1      	{
+ 127   2      		absdy=-dy;
+ 128   2      	}
+ 129   1          if (absdx>absdy)
+ 130   1              n=absdx;
+ 131   1          else
+ 132   1              n=absdy;
+ 133   1          xinc=(float)dx/n;
+ 134   1              yinc=(float)dy/n;
+ 135   1          x=(float)x0;y=(float)y0;
+ 136   1          for (k=1;k<=n;k++)
+ 137   1          {
+ 138   2              LCD_draw_point5110((int)(x+0.5),(int)(y+0.5));
+ 139   2                  x+=xinc;
+ 140   2                      y+=yinc;
+ 141   2          }
+ 142   1      }	
+
+
+MODULE INFORMATION:   STATIC OVERLAYABLE
+   CODE SIZE        =    483    ----
+   CONSTANT SIZE    =   ----    ----
+   XDATA SIZE       =   ----    ----
+   PDATA SIZE       =   ----    ----
+   DATA SIZE        =   ----      25
+   IDATA SIZE       =   ----    ----
+   BIT SIZE         =   ----    ----
+END OF MODULE INFORMATION.
+
+
+C51 COMPILATION COMPLETE.  0 WARNING(S),  0 ERROR(S)
